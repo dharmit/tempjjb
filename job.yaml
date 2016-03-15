@@ -1,0 +1,47 @@
+- job:
+    name: tempjjb
+    description: "Tempjjb project. DO NOT update manually."
+    properties:
+        - github:
+            url: https://github.com/dharmit/tempjjb
+    builders:
+        - pyscript
+    triggers:
+        - custom-trigger
+    scm:
+        - GitHub-info
+
+# Python script to execute
+- builder:
+    name: pyscript
+    builders:
+        - python:
+            !include-raw: './run.py'
+# GitHub Pull Request Builder trigger
+- trigger:
+    name: custom-trigger
+    triggers:
+        - github-pull-request:
+            admin-list:
+                - dharmit
+            trigger-phrase: '#build'
+            permit-all: false
+            github-hooks: true
+            started-status: "Starting tests on Jenkins"
+            success-status: "Successfully tested"
+            failure-status: "Tests failed :("
+# GitHub repo info
+- scm:
+    name: GitHub-info
+    scm: 
+        - git:
+            git-tool: ci-git
+            url: https://github.com/dharmit/tempjjb
+            wipe-workspace: false
+            refspec: +refs/pull/*:refs/remotes/origin/pr/*
+            skip-tage: true
+            credentials-id: b7851d03-edbf-43ef-a253-d13ab1dccb00
+            clean:
+                after: true
+            branches:
+                - ${sha1}
